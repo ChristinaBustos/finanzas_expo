@@ -14,4 +14,4 @@ const firebaseConfig = {
 // Initialize Firebase
 //expo community no es compatible 
 export const app = initializeApp(firebaseConfig);
-export const auth = initializeAuth(app,{persistence: getReactNativePersistence(AsyncStorage)})
+export const auth = initializeApp(app,{persistence: getReactNativePersistence(AsyncStorage)})
