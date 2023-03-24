@@ -1,96 +1,134 @@
 import { StyleSheet, Text, View } from 'react-native'
 import { Button, Avatar } from '@rneui/base'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+// import AsyncStorage from '@react-native-async-storage/async-storage'
 import Loading from '../../../../kernel/components/Loading'
-import { getStorage,ref,uploadBytes,getDownloadURL } from "firebase/storage"
-import * as Imagepicker from 'expo-image-picker'
-import * as Permissions from 'expo-permissions'
-import {getAuth, updateProfile} from "firebase/auth"
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
+import { getAuth, updateProfile } from 'firebase/auth'
+import * as MediaLibrary from 'expo-media-library'
+import * as ImagePicker from 'expo-image-picker'
+
+// import { doc, setDoc, getFirestore } from "firebase/firestore";
+import AccountOptions from './AccountOptions'
+import { get } from 'lodash'
 
 export default function UserLogged(props) {
-    const auth = getAuth()
+    const [auth, setAuth] = useState(getAuth())
+    const [reload, setReload] = useState(false)
+    useEffect(()=>{
+        setAuth(getAuth())
+        console.log('Entra al effect')
+        setReload(false)
+    },[reload])
+    // const { setReload, user } = props
+    console.log('currentUser', auth.currentUser);
     const { user } = props
+    console.log('Sesión', user);
     const [show, setShow] = useState(false)
-  
+    const [text, setText] = useState('')
+    // const removeValue = async () => {
+    //     setText('Cerrando sesión')
+    //     try {
+    //         setShow(true)
+    //         await AsyncStorage.removeItem('@session')
+    //         setShow(false)
+    //         setReload(true)
+    //     } catch (e) {
+    //         setShow(false)
+    //         console.log('Error - UserLogged(12)', e);
+    //     }
+    // }
 
-    const uploadImage = async (uri) =>{
-        setShow(true);
-        const response = await fetch(uri);
-        console.log("repuesta",response);
-        const {_bodyBlob } = response;
-        const storage = getStorage();
-        const storageRef = ref(storage,`avatars/${user.uid}`);
-        return uploadBytes(storageRef,_bodyBlob);
+    const uploadImage = async (uri) => {
+        setText('Cambiando avatar')
+        setShow(true)
+        const response = await fetch(uri) //genera un blob
+        console.log('Uri response', response);
+        const { _bodyBlob } = response
+        const storage = getStorage()
+        const storageRef = ref(storage, `avatar/${user.uid}`)
+        return uploadBytes(storageRef, _bodyBlob)
     }
 
-    const changeAvatar = async () =>{
-        const resultPermission = await Permissions.askAsync(Permissions.CAMERA)
-        if(resultPermission.permissions.camera.status !== 'denied'){
-            let result = await Imagepicker.launchImageLibraryAsync({
-                mediaTypes: Imagepicker.MediaTypeOptions.Images,
+    const changeAvatar = async () => {
+        const {status} = await MediaLibrary.requestPermissionsAsync()
+        if (status !== 'denied') {
+            let result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,
                 quality: 1
-            });
-            if(!result.canceled){
+            })
+            if (!result.canceled) {
                 uploadImage(result.assets[0].uri).then((response) => {
-                    console.log("Image actualizada");
-                    updateProfile()
-                }).catch((err)=>{
-                    console.log("error",err);
+                    console.log('Imagen actualizada')
+                    uploadPhotoProfile()
+                }).catch((err) => {
+                    console.log('Error', err)
                 })
-            }else{
-                console.log("No se ha seleccionado una imagen");
+            } else {
+                console.log('Imagen no seleccionada');
+                setShow(false)
             }
         }
-
     }
 
-    const updateProfile =  () =>{
+    const uploadPhotoProfile = () => {
         const storage = getStorage()
-        getDownloadURL(ref(storage,`avatars/${user.uid}`)).then((url)=>{
-            updateProfile(auth.currentUser,{
-                photoURL: url,
-            }).then(() => {
+        getDownloadURL(ref(storage, `avatar/${user.uid}`))
+            .then((url) => {
+                updateProfile(auth.currentUser, {
+                    photoURL: url
+                })
+                    .then(() => {
+                        setShow(false)
+                    })
+                    .catch((err) => {
+                        setShow(false)
+                        console.log('Fallo', err);
+                    })
+            }).catch((err) => {
                 setShow(false)
-            })
-        }).catch((err)=>{
-                setShow(false)
-                console.log("error al actualizar perfil",err);
+                console.log('Error obtener Imagen', err);
             })
     }
-
 
     return (
         <View style={styles.container}>
             {user && (
-                <View style={styles.infoContainer}> 
-                <Avatar
-                    size='xlarge'
-                    rounded
-                    source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/finanzas-7a5b1.appspot.com/o/avatar%2FmRTZiKPLkERJBQ1I9rPttYzHjOH3.jpg?alt=media&token=bd66125b-8746-43b4-b8a2-000cb0483557' }}
-                    containerStyle={styles.avatar}
-                >
-                    <Avatar.Accessory
-                        size={50}
-                        onPress={changeAvatar}
-                    />
-                </Avatar>
-                <View>
-                    <Text style={styles.displayName}>
-                        {user.providerData[0].displayName ? user.providerData[0].displayName : 'Anónimo'}
-                    </Text>
-                    <Text>
-                        {user.providerData[0].email}
-                    </Text>
+                <View style={styles.infoContainer}>
+                    <Avatar
+                        size='xlarge'
+                        rounded
+                        source={{ uri: `${auth.currentUser.photoURL}` }}
+                        containerStyle={styles.avatar}
+                    >
+                        <Avatar.Accessory
+                            size={50}
+                            onPress={changeAvatar}
+                        />
+                    </Avatar>
+                    <View>
+                        <Text style={styles.displayName}>
+                            {auth.currentUser.displayName ? auth.currentUser.displayName : 'Anónimo'}
+                        </Text>
+                        <Text>
+                            {auth.currentUser.email}
+                        </Text>
+                    </View>
                 </View>
-            </View>
             )}
-            <Button
-                title='Cerrar sesión'
-                buttonStyle={styles.btn}
-                onPress={() => auth.signOut()}
-            />
-            <Loading show={show} text='Actualizando Imagen' />
+            <AccountOptions setReload={setReload}/>
+            <View style={styles.btnContainer}>
+                <Button
+                    title='Cerrar sesión'
+                    buttonStyle={styles.btn}
+                    onPress={() => {
+                        setText('Cerrando sesión')
+                        return auth.signOut()
+                    }}
+                />
+            </View>
+            <Loading show={show} text={text} />
         </View>
     )
 }
@@ -100,11 +138,17 @@ const styles = StyleSheet.create({
         minHeight: '100%',
         backgroundColor: '#FFF'
     },
+    btnContainer: {
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
     btn: {
         marginTop: 30,
-        borderRadius: 0,
         backgroundColor: 'tomato',
-        paddingVertical: 10
+        paddingVertical: 10,
+        marginHorizontal: 20,
+        borderRadius: 10,
+        width: 250
     },
     infoContainer: {
         alignItems: 'center',
@@ -115,7 +159,7 @@ const styles = StyleSheet.create({
     avatar: {
         marginRight: 16
     },
-    displayName:{
+    displayName: {
         fontWeight: 'bold',
         paddingBottom: 5
     },

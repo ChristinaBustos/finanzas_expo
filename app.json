@@ -1,5 +1,19 @@
 {
   "expo": {
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+        }
+      ], [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ]
+    ],
     "name": "finanzas",
     "slug": "finanzas",
     "version": "1.0.0",
@@ -21,6 +35,13 @@
       "supportsTablet": true
     },
     "android": {
+      "package":"com.expo.finanzas",
+      "googleServicesFile":"./google-services.json",
+      "config":{
+        "googleMaps":{
+          "apiKey":"AIzaSyBQcNA9nFdeYih-ZUdm4aJZv1FauFZxMXM"
+        }
+      },
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
@@ -28,6 +49,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2069c5de-bc08-4504-8bfe-f0c796e3dbe6"
+      }
     }
   }
 }

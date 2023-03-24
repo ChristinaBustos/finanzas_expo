@@ -1,68 +1,104 @@
-import { StyleSheet, Text, View } from 'react-native'
-import { getAuth, updateProfile } from 'firebase/auth';
-import React from 'react'
-import { Button, Icon, Input } from '@rneui/base';
-import { useState } from 'react';
-import Loading from '../../../../../kernel/components/Loading';
-import { isEmpty } from 'lodash';
+import { StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import * as Location from "expo-location";
+import MapView, { Marker } from "react-native-maps";
+import { Dimensions, Alert } from "react-native";
+import { Button, Divider } from "@rneui/base";
 
-export default function ChangeAddress() {
-    const auth = getAuth()
-    const [displayName, setDisplayName] = useState(auth.currentUser.displayName ? auth.currentUser.displayName : '')
-    const [show, setShow] = useState(false)
-    const [text, setText] = useState('')
-    const [error, setError] = useState({ displayName: '' })
+const widthScreen = Dimensions.get("window").width;
 
-    const updateDisplayName = () => {
-        setShow(true)
-        setText('Actualizando...')
-        if (!isEmpty(displayName)) {
-            updateProfile(auth.currentUser, {
-                displayName: displayName
-            })
-                .then(() => {
-                    setShow(false)
-                })
-                .catch((err) => {
-                    setShow(false)
-                    console.log('Fallo', err);
-                })
-        }else{
-            setShow(false)
+export default function ChangeAddress(props) {
+  const { setShowModal } = props;
+  const [location, setLocation] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "denied") {
+        try {
+          const loc = await Location.getCurrentPositionAsync({});
+          console.log("Latitude", loc);
+          setLocation({
+            latitude: loc.coords.latitude,
+            longitud: loc.coords.longitude,
+            latitudeDelta: 0.004757,
+            longitudDelta: 0.006866,
+          });
+        } catch (error) {
+            console.log("error",error);
         }
-    }
+      } else {
+        //alert
+      }
+    })();
+  }, [])
 
 
-    return (
-        <View>
-            <Input
-                value={displayName}
-                label='Cambiar Direccion'
-                containerStyle={styles.input}
-                onChange={(event) => setDisplayName(event.nativeEvent.text)}
-                errorMessage={error.displayName}
-                autoCapitalize='none'
-            />
-            <Button
-                title="Actualizar"
-                buttonStyle={styles.btnSuccess}
-                containerStyle={styles.btnContainer}
-                // onPress={updateDisplayName}
-            />
-            <Loading show={show} text={text} />
-        </View>
-    )
+  return (
+    <View>
+      {location && (
+        <MapView
+          style={styles.map}
+          initialRegion={location}
+          showsUserLocation={true}
+          minZoomLevel={15}
+          onRegionChange={(region) => setLocation(region)}
+        >
+          <Marker
+            coordinate={{
+              latitude: location.latitude,
+              longitud: location.longitude,
+            }}
+            title = "mi ubicación"
+            draggable
+          />
+        </MapView>
+      )}
+      <View style={{ flex: 1, alignItems: "center", marginTop: 10 }}>
+        <Divider  color="tomato" width={2} style={styles.divider} />
+      </View>
+      <View style={styles.containerButtons}>
+        <Button
+          title="Cancelar ubicación"
+          containerStyle={styles.btnDangerConatiner}
+          buttonStyle={styles.btnDanger}
+          onPress={() => setShowModal(false)}
+        />
+        <Button
+          title="Guardar"
+          containerStyle={styles.btnSuccessContainer}
+          buttonStyle={styles.btnSuccess}
+          onPress={(()=>{ console.log("Hola");})        }
+        />
+      </View>
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({
-    btnSuccess: {
-        color: '#FFF',
-        backgroundColor:'tomato'
+    map:{
+        width:"100%",
+        height: 560
     },
-    btnContainer: {
-        margin: 16
+    divider:{
+        width:"100%"
     },
-    input: {
-        width: '100%',
+    containerButtons: {
+        flexDirection:"row",
+        justifyContent:"center",
+        marginTop: 10
     },
-})
+    btnSuccessContainer:{
+        width:"50%",
+        padding: 10
+    },
+    btnDangerConatiner:{
+        padding:10
+    },
+    btnDanger:{
+        backgroundColor: "#a60a0d"
+    },
+    btnSuccess:{
+        backgroundColor:'#00a680'
+    }
+});

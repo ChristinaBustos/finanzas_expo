@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "537976435132",
+    "project_id": "finanzas-7a5b1",
+    "storage_bucket": "finanzas-7a5b1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:537976435132:android:385bf63cfc3d91a58a7bb9",
+        "android_client_info": {
+          "package_name": "com.expo.finanzas"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "537976435132-sh7o09t32bnpg4a3p2k67inuo9ctt9me.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAx7zDH_X4A-GFW0uOsL2W2JsJVa1W-eig"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "537976435132-sh7o09t32bnpg4a3p2k67inuo9ctt9me.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

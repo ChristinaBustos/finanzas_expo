@@ -14,28 +14,28 @@ export default function ChangeDisplayName(props) {
     const [text, setText] = useState('')
     const [error, setError] = useState({ displayName: '' })
 
-    // const updateDisplayName = () => {
-    //     setShow(true)
-    //     setText('Actualizando...')
-    //     if (!isEmpty(displayName)) {
-    //         updateProfile(auth.currentUser, {
-    //             displayName: displayName
-    //         })
-    //             .then(() => {
-    //                 setError({displayName: ''})
-    //                 setShow(false)
-    //                 setReload(true)
-    //             })
-    //             .catch((err) => {
-    //                 setError({displayName: 'Error al actualizar nombre'})
-    //                 setShow(false)
-    //                 console.log('Fallo', err);
-    //             })
-    //     }else{
-    //         setShow(false)
-    //         setError({displayName: 'Campo obligatorio'})
-    //     }
-    // }
+    const updateDisplayName = () => {
+        setShow(true)
+        setText('Actualizando...')
+        if (!isEmpty(displayName)) {
+            updateProfile(auth.currentUser, {
+                displayName: displayName
+            })
+                .then(() => {
+                    setError({displayName: ''})
+                    setShow(false)
+                    setReload(true)
+                })
+                .catch((err) => {
+                    setError({displayName: 'Error al actualizar nombre'})
+                    setShow(false)
+                    console.log('Fallo', err);
+                })
+        }else{
+            setShow(false)
+            setError({displayName: 'Campo obligatorio'})
+        }
+    }
 
 
     return (
@@ -50,10 +50,18 @@ export default function ChangeDisplayName(props) {
                 autoCapitalize='none'
             />
             <Button
-                title="Aceptar"
+                title="Actualizar"
+                icon={
+                    <Icon
+                        type="material-community"
+                        name="update"
+                        size={22}
+                        color="#fff"
+                    />
+                }
                 buttonStyle={styles.btnSuccess}
                 containerStyle={styles.btnContainer}
-                // onPress={updateDisplayName}
+                onPress={updateDisplayName}
             />
             <Loading show={show} text={text} />
         </View>
@@ -64,6 +72,7 @@ const styles = StyleSheet.create({
     label: {
         marginTop: 10,
         fontSize: 20,
+        fontWeight: 'bold',
         marginBottom: 5,
     },
     btnSuccess: {

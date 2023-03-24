@@ -20,14 +20,7 @@ export default function Login(props) {
       setShow(true)
       setError({ email: '', password: '' })
       signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          // try {
-          //   await AsyncStorage.setItem('@session', JSON.stringify(user))
-          // } catch (e) {
-          //   console.error("Error -> login Storage",e);
-          // }
-          console.log("Login",user);
+        .then(async (userCredential) => {
           setShow(false)
           navigation.navigate("profileStack")
         })
@@ -85,11 +78,13 @@ export default function Login(props) {
           containerStyle={styles.btnContainer}
           onPress={login}
         />
-        <Text
-          style={styles.createAccount}
-          onPress={() => console.log("Vamos")}>
-          Crear cuenta
-        </Text>
+        <View style={styles.textContainer}>
+          <Text
+            style={styles.createAccount}
+            onPress={() => navigation.navigate('createUserStackt')}>
+            Crear cuenta
+          </Text>
+        </View>
         <Loading show={show} text='Iniciando sesión' />
       </ScrollView>
     </View>
@@ -97,6 +92,10 @@ export default function Login(props) {
 }
 
 const styles = StyleSheet.create({
+  textContainer:{
+    justifyContent:'center',
+    alignItems:'center'
+  },
   container: {
     backgroundColor: "#fff",
     height: "100%",

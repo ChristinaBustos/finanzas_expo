@@ -71,7 +71,7 @@ export default function ChangePassword(props) {
     return (
         <View>
             <Input
-                label='Contraseña Anterior'
+                label='Email'
                 labelStyle={styles.label}
                 containerStyle={styles.input}
                 onChange={(e) => changePayLoad(e, 'email')}
@@ -89,7 +89,7 @@ export default function ChangePassword(props) {
                 rightIcon={
                     <Icon type="material-community"
                         name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                        color="tomato"
+                        color="#007bff"
                         onPress={() => setShowPassword(!showPassword)}>
                     </Icon>}
             />
@@ -104,15 +104,23 @@ export default function ChangePassword(props) {
                 rightIcon={
                     <Icon type="material-community"
                         name={showNewPassword ? 'eye-off-outline' : 'eye-outline'}
-                        color="tomato"
+                        color="#007bff"
                         onPress={() => setShowNewPassword(!showNewPassword)}>
                     </Icon>}
             />
             <Button
                 title="Actualizar"
+                icon={
+                    <Icon
+                        type="material-community"
+                        name="update"
+                        size={22}
+                        color="#fff"
+                    />
+                }
                 buttonStyle={styles.btnSuccess}
                 containerStyle={styles.btnContainer}
-                // onPress={updatePass}
+                onPress={updatePass}
             />
             <Loading show={show} text={text} />
         </View>
